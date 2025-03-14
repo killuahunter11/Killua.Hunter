@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>About Me</title>
+  <style>
+    body {
+      font-family: 'Orbitron', sans-serif;
+      color: black;
+      text-align: center;
+      margin-top: 10px;
+      padding: 50px;
+      position: relative;
+      overflow: hidden;
+      background: url('https://i.imgur.com/mJcS2Mb.png') no-repeat center center fixed;
+      background-size: cover;
+    }
+    h1, p {
+      position: relative;
+      z-index: 2;
+      color: black;
+      text-shadow: 0 0 5px hsl(237, 97%, 38%), 0 0 10px hsl(237, 97%, 38%), 0 0 20px #2306a3, 0 0 40px #030877;
+      font-weight: bold;
+      font-size: 2em;
+    }
+    img {
+      display: block;
+      margin: 20px auto;
+      max-width: 300px;
+      height: auto;
+      border-radius: 15px;
+      position: relative;
+      z-index: 2;
+    }
+    .contact-info {
+      font-size: 1em;
+    }
+    .binary {
+      position: absolute;
+      top: -5vh;
+      font-size: 1.5em;
+      color: #cb5807;
+      text-shadow: 0 0 5px #cb5807, 0 0 10px #b6570a, 0 0 20px #e2810a;
+      user-select: none;
+      opacity: 0.8;
+      animation: fall linear infinite;
+      z-index: 1;
+    }
+    @keyframes fall {
+      from {
+        transform: translateY(-10vh);
+        opacity: 1;
+      }
+      to {
+        transform: translateY(110vh);
+        opacity: 0;
+      }
+    }
+    #controls {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      background-color: rgba(10,10,50,0.8);
+      padding: 12px;
+      border-radius: 15px;
+      color: #ffffff;
+      z-index: 9999;
+      text-align: left;
+      box-shadow: 0 0 15px #2306a3, 0 0 25px #030877;
+    }
+    button {
+      font-size: 1em;
+      padding: 8px 16px;
+      margin: 5px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      background: linear-gradient(45deg, #ff00cc, #333399);
+      color: #ffffff;
+      box-shadow: 0 0 15px #ff00cc, 0 0 25px #333399;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    button:hover {
+      transform: scale(1.2);
+      box-shadow: 0 0 20px #ff00cc, 0 0 30px #333399;
+    }
+    .song-menu {
+      display: none;
+      background: rgba(20,20,70,0.95);
+      border-radius: 10px;
+      padding: 10px;
+      position: absolute;
+      top: 50px;
+      left: 10px;
+      box-shadow: 0 0 10px #2306a3;
+    }
+    .menu-btn {
+      background: transparent;
+      color: #ffffff;
+      font-size: 1.5em;
+      border: none;
+      cursor: pointer;
+      position: absolute;
+      top: -5px;
+      right: -5px;
+      text-shadow: 0 0 10px #2306a3, 0 0 20px #030877;
+    }
+  </style>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <h1>Hey, I'm Killua Hunter!</h1>
+  <p>I'm a 13-year-old who likes coding dumb stuff</p>
+  <p>I'm also</p>
+  <p>Do you need anything? Ask me, my contact is below</p>
+  <img src="https://i.imgur.com/ZbzsghF.png" alt="Contact Image">
+  <p class="contact-info">My Number is 7036292173</p>
+  <p class="contact-info">My Email is jacobjoubert2011@gmail.com</p>
+  <p class="contact-info">My Discord is killuahunter If you couldn't already tell</p>
+
+  <div id="controls">
+    <button class="menu-btn" onclick="toggleMenu()">⋮</button>
+    <div id="track-info">Now Playing: Title Screen</div>
+    <button class="play" onclick="playMusic()">Play</button>
+    <button class="pause" onclick="pauseMusic()">Pause</button>
+    <button class="stop" onclick="stopMusic()">Stop</button>
+    <div id="progress">00:00 / 00:00</div>
+
+    <div id="song-menu" class="song-menu">
+      <button onclick="changeSong('https://files.catbox.moe/1ab49u.mp3', 'Title Screen')">Title Screen</button>
+      <button onclick="changeSong('https://files.catbox.moe/1ld9np.mp3', 'I Will Survive')">I Will Survive</button>
+      <button onclick="changeSong('https://files.catbox.moe/e2y0nb.mp3', 'Subwoofer Lullaby')">Subwoofer Lullaby</button>
+      <button onclick="changeSong('https://files.catbox.moe/7aujva.mp3', 'Loonboon')">Loonboon</button>
+      <button onclick="changeSong('https://files.catbox.moe/5meiei.mp3', 'Phantom')">Phantom</button>
+      <button onclick="changeSong('https://files.catbox.moe/ptpntz.mp3', 'Last Surprise')">Last Surprise</button>
+      <button onclick="changeSong('https://files.catbox.moe/5h74gl.mp3', 'Friday Night')">Friday Night</button>
+      <button onclick="changeSong('https://files.catbox.moe/exq1z2.mp3', 'The Tale of a Cruel World')">The Tale of a Cruel World</button>
+      <button onclick="changeSong('https://files.catbox.moe/zap9g0.mp3', 'Guardian of the Former Seas')">Guardian of the Former Seas</button>
+    </div>
+  </div>
+
+  <audio id="background-audio" loop>
+    <source src="https://files.catbox.moe/1ab49u.mp3" type="audio/mpeg">
+  </audio>
+
+  <script>
+    const audio = document.getElementById('background-audio');
+    const progress = document.getElementById('progress');
+    const trackInfo = document.getElementById('track-info');
+
+    function toggleMenu() {
+      const menu = document.getElementById('song-menu');
+      menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+    }
+
+    function changeSong(url, title) {
+      audio.src = url;
+      trackInfo.innerText = `Now Playing: ${title}`;
+      audio.play();
+      toggleMenu();
+    }
+
+    function updateProgress() {
+      progress.innerText = `${formatTime(audio.currentTime)} / ${formatTime(audio.duration)}`;
+    }
+
+    function formatTime(time) {
+      const minutes = Math.floor(time / 60).toString().padStart(2, '0');
+      const seconds = Math.floor(time % 60).toString().padStart(2, '0');
+      return `${minutes}:${seconds}`;
+    }
+
+    audio.addEventListener('timeupdate', updateProgress);
+    audio.addEventListener('loadedmetadata', updateProgress);
+
+    function playMusic() { audio.play(); }
+    function pauseMusic() { audio.pause(); }
+    function stopMusic() { audio.pause(); audio.currentTime = 0; }
+  </script>
+</body>
+</html>
