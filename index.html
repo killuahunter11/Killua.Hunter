@@ -9,10 +9,10 @@
       font-family: 'Orbitron', sans-serif;
       color: black;
       text-align: center;
-      margin: 10px;
-      padding: 2rem;
+      margin-top: 10px;
+      padding: 50px;
       position: relative;
-      overflow-x: hidden; /* Prevent horizontal overflow */
+      overflow: hidden;
       background: url('https://i.imgur.com/mJcS2Mb.png') no-repeat center center fixed;
       background-size: cover;
     }
@@ -22,26 +22,26 @@
       color: black;
       text-shadow: 0 0 5px hsl(237, 97%, 38%), 0 0 10px hsl(237, 97%, 38%), 0 0 20px #2306a3, 0 0 40px #030877;
       font-weight: bold;
-      font-size: 2rem;
+      font-size: 2em;
     }
     img {
       display: block;
       margin: 20px auto;
-      max-width: 80%;
+      max-width: 300px;
       height: auto;
       border-radius: 15px;
       position: relative;
       z-index: 2;
     }
     .contact-info {
-      font-size: 1rem;
+      font-size: 1em;
     }
     .binary {
       position: absolute;
       top: -5vh;
-      font-size: 1.5rem;
-      color: black; /* Same color as the text */
-      text-shadow: 0 0 5px hsl(237, 97%, 38%), 0 0 10px hsl(237, 97%, 38%), 0 0 20px #2306a3, 0 0 40px #030877;
+      font-size: 1.5em;
+      color: #cb5807;
+      text-shadow: 0 0 5px #cb5807, 0 0 10px #b6570a, 0 0 20px #e2810a;
       user-select: none;
       opacity: 0.8;
       animation: fall linear infinite;
@@ -62,7 +62,7 @@
       top: 20px;
       left: 20px;
       background-color: rgba(10,10,50,0.8);
-      padding: 1rem;
+      padding: 12px;
       border-radius: 15px;
       color: #ffffff;
       z-index: 9999;
@@ -70,9 +70,9 @@
       box-shadow: 0 0 15px #2306a3, 0 0 25px #030877;
     }
     button {
-      font-size: 1rem;
-      padding: 0.5rem 1rem;
-      margin: 0.5rem;
+      font-size: 1em;
+      padding: 8px 16px;
+      margin: 5px;
       border: none;
       border-radius: 10px;
       cursor: pointer;
@@ -98,37 +98,13 @@
     .menu-btn {
       background: transparent;
       color: #ffffff;
-      font-size: 1.5rem;
+      font-size: 1.5em;
       border: none;
       cursor: pointer;
       position: absolute;
       top: -5px;
       right: -5px;
       text-shadow: 0 0 10px #2306a3, 0 0 20px #030877;
-    }
-    @media (max-width: 768px) {
-      h1, p {
-        font-size: 1.5rem;
-      }
-      button {
-        font-size: 0.8rem;
-        padding: 0.4rem 0.8rem;
-      }
-      .menu-btn {
-        font-size: 1.2rem;
-      }
-    }
-    @media (max-width: 480px) {
-      h1, p {
-        font-size: 1.2rem;
-      }
-      button {
-        font-size: 0.7rem;
-        padding: 0.3rem 0.6rem;
-      }
-      .menu-btn {
-        font-size: 1rem;
-      }
     }
   </style>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
@@ -201,17 +177,7 @@
     function playMusic() { audio.play(); }
     function pauseMusic() { audio.pause(); }
     function stopMusic() { audio.pause(); audio.currentTime = 0; }
-
-    function createBinary() {
-      const binary = document.createElement("div");
-      binary.classList.add("binary");
-      binary.innerText = Math.random() > 0.5 ? "0" : "1";
-      binary.style.left = Math.random() * 100 + "vw";
-      binary.style.animationDuration = Math.random() * 5 + 3 + "s";
-      document.body.appendChild(binary);
-      setTimeout(() => binary.remove(), 7000);
-    }
-    setInterval(createBinary, 100);
   </script>
 </body>
 </html>
+
