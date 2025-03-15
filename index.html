@@ -13,6 +13,7 @@
       padding: 2rem;
       position: relative;
       overflow-x: hidden; /* Prevent horizontal overflow */
+      overflow-y: auto; /* Allow vertical scrolling */
       background: url('https://i.imgur.com/mJcS2Mb.png') no-repeat center center fixed;
       background-size: cover;
     }
@@ -106,6 +107,9 @@
       right: -5px;
       text-shadow: 0 0 10px #2306a3, 0 0 20px #030877;
     }
+    .scroll-container {
+      height: 200vh; /* Increase this value to allow more scrolling */
+    }
     @media (max-width: 768px) {
       h1, p {
         font-size: 1.5rem;
@@ -134,14 +138,16 @@
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
-  <h1>Hey, I'm Killua Hunter!</h1>
-  <p>I'm a 13-year-old who likes coding dumb stuff</p>
-  <p>I'm also</p>
-  <p>Do you need anything? Ask me, my contact is below</p>
-  <img src="https://i.imgur.com/ZbzsghF.png" alt="Contact Image">
-  <p class="contact-info">My Number is 7036292173</p>
-  <p class="contact-info">My Email is jacobjoubert2011@gmail.com</p>
-  <p class="contact-info">My Discord is killuahunter If you couldn't already tell</p>
+  <div class="scroll-container">
+    <h1>Hey, I'm Killua Hunter!</h1>
+    <p>I'm a 13-year-old who likes coding dumb stuff</p>
+    <p>I'm also</p>
+    <p>Do you need anything? Ask me, my contact is below</p>
+    <img src="https://i.imgur.com/ZbzsghF.png" alt="Contact Image">
+    <p class="contact-info">My Number is 7036292173</p>
+    <p class="contact-info">My Email is jacobjoubert2011@gmail.com</p>
+    <p class="contact-info">My Discord is killuahunter If you couldn't already tell</p>
+  </div>
 
   <div id="controls">
     <button class="menu-btn" onclick="toggleMenu()">⋮</button>
