@@ -1,401 +1,340 @@
-<!doctype html>
+ 
+  <!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>My Online Photo Wall</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Photo Grid — 100 Frames</title>
   <style>
     :root{
-      --bg:#0b0f14; --card:#111827; --muted:#1f2937; --text:#e5e7eb; --sub:#94a3b8; --accent:#60a5fa; --ok:#22c55e; --warn:#f59e0b; --err:#ef4444;
+      --bg:#0b0d10; --card:#13171c; --muted:#aab3c2; --accent:#4da3ff; --accent2:#7bffb2; --ring:#2a6cff;
     }
     *{box-sizing:border-box}
-    body{margin:0;background:linear-gradient(180deg,#0b0f14,#0d1117);color:var(--text);font:16px/1.5 system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,sans-serif}
-    header{position:sticky;top:0;z-index:5;background:rgba(13,17,23,.7);backdrop-filter:blur(8px);border-bottom:1px solid #111a;}
-    .wrap{max-width:1200px;margin:0 auto;padding:16px}
-    h1{margin:0;font-size:20px;font-weight:700}
-    .sub{color:var(--sub);font-size:13px}
+    html,body{height:100%}
+    body{margin:0;background:radial-gradient(1200px 800px at 10% -10%,#112 0%,transparent 70%),linear-gradient(180deg,#0b0d10,#0a0c0f 60%,#080a0d);color:#e7ecf3;font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial}
+    header{position:sticky;top:0;z-index:5;background:linear-gradient(180deg,rgba(11,13,16,.9),rgba(11,13,16,.6));backdrop-filter:blur(8px);border-bottom:1px solid #20242a}
+    .inner{max-width:1200px;margin:0 auto;padding:16px}
+    .title{display:flex;gap:12px;align-items:center}
+    .title h1{font-size:20px;letter-spacing:.3px;margin:0}
+    .title .badge{font-size:12px;padding:3px 8px;border-radius:999px;background:#10161f;border:1px solid #263040;color:#aab3c2}
+    .bar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:10px}
+    button, .btn{background:#1b2330;border:1px solid #2a3342;color:#d6deea;border-radius:10px;padding:10px 14px;cursor:pointer}
+    button:hover{border-color:#3b4960}
+    button.primary{background:linear-gradient(180deg,#2a6cff,#1f5be0);border-color:#2b62ff}
 
-    .grid{display:grid;gap:8px;padding:16px;max-width:1200px;margin:0 auto}
-    /* 10x10 on large, responsive down */
-    @media (min-width:1100px){.grid{grid-template-columns:repeat(10, 1fr)}}
-    @media (max-width:1099px) and (min-width:900px){.grid{grid-template-columns:repeat(8, 1fr)}}
-    @media (max-width:899px) and (min-width:700px){.grid{grid-template-columns:repeat(6, 1fr)}}
-    @media (max-width:699px) and (min-width:520px){.grid{grid-template-columns:repeat(4, 1fr)}}
-    @media (max-width:519px){.grid{grid-template-columns:repeat(2, 1fr)}}
-
-    .tile{position:relative;aspect-ratio:1/1;border-radius:12px;overflow:hidden;background:var(--card);border:1px solid #1f2937;display:flex;align-items:center;justify-content:center;cursor:pointer;}
-    .tile:hover{outline:2px solid #243447}
-    .tile img{width:100%;height:100%;object-fit:cover;display:block}
-    .tile .empty{display:flex;flex-direction:column;align-items:center;gap:6px;color:#94a3b8}
-    .tile .empty svg{opacity:.7}
-
-    .badge{position:absolute;inset:auto 8px 8px auto;background:#0b1220a6;border:1px solid #2a3b51;color:#9cc1ff;font-size:11px;padding:4px 6px;border-radius:8px}
-
-    .controls{display:flex;gap:8px;align-items:center;justify-content:space-between}
-    button, .btn{appearance:none;border:1px solid #243447;background:#0e1622;color:var(--text);padding:8px 12px;border-radius:10px;cursor:pointer}
-    button:hover,.btn:hover{background:#142136}
-    .pill{padding:6px 10px;border-radius:999px;border:1px solid #243447;color:#9fb4d3;background:#0e1622}
+    /* Grid */
+    .grid{max-width:1200px;margin:20px auto;display:grid;grid-template-columns:repeat(10,1fr);gap:10px;padding:10px}
+    .cell{position:relative;aspect-ratio:1/1;border-radius:14px;background:linear-gradient(180deg,#121821,#0f141b);border:1px solid #1e2634;overflow:hidden}
+    .cell input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer}
+    .cell .placeholder{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#94a3b8;font-size:12px;gap:6px}
+    .cell .placeholder svg{opacity:.9}
+    .thumb{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+    .cell .overlay{position:absolute;inset:auto 8px 8px 8px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+    .cell .overlay .edit{padding:6px 10px;border-radius:999px;background:rgba(10,14,20,.7);backdrop-filter:blur(4px);border:1px solid #223;cursor:pointer}
 
     /* Modal */
-    dialog{width:min(900px,94vw);background:#0c131d;border:1px solid #243447;border-radius:16px;color:var(--text);padding:0;}
-    dialog::backdrop{background:rgba(0,0,0,.6)}
-    .modal-head{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid #1d2736}
-    .modal-body{display:grid;grid-template-columns:1.2fr .8fr;gap:0;border-bottom-left-radius:16px;border-bottom-right-radius:16px}
-    .modal-img{background:#0a0f17;display:flex;align-items:center;justify-content:center;min-height:320px}
-    .modal-img img{max-width:100%;max-height:72vh;border-bottom-left-radius:16px}
-    .meta{padding:16px;border-left:1px solid #1d2736}
-    .meta h3{margin:0 0 8px 0;font-size:16px}
-    .meta label{display:block;font-size:12px;color:#a8b3c7;margin:10px 0 6px}
-    .meta textarea{width:100%;min-height:140px;border-radius:10px;background:#0b1220;border:1px solid #22324a;color:var(--text);padding:10px;resize:vertical}
-    .muted{color:#9aa7bd;font-size:12px}
-    .row{display:flex;gap:8px;align-items:center}
-    .save-state{font-size:12px}
-    .save-dot{width:8px;height:8px;border-radius:999px;background:#64748b;display:inline-block;margin-right:6px}
-    .save-dot.saving{background:var(--warn)}
-    .save-dot.saved{background:var(--ok)}
-    .save-dot.error{background:var(--err)}
+    .modalBack{position:fixed;inset:0;background:rgba(9,11,14,.6);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;z-index:50}
+    .modal{width:min(1000px,92vw);height:min(720px,88vh);background:#0e141b;border:1px solid #243044;border-radius:18px;overflow:hidden;display:grid;grid-template-columns:1.2fr .8fr}
+    .modal img{width:100%;height:100%;object-fit:contain;background:#0a0d12}
+    .side{display:flex;flex-direction:column}
+    .side header{position:relative;background:#0f1621;border-bottom:1px solid #243044}
+    .side header h3{margin:0;font-size:16px}
+    .meta{padding:14px 16px;display:flex;gap:10px;align-items:center;color:#aab3c2}
+    .meta .dot{width:8px;height:8px;border-radius:50%;background:var(--accent)}
+    textarea{flex:1;resize:none;background:#0c1219;border:1px solid #223043;color:#dce6f5;margin:16px;border-radius:12px;padding:12px;line-height:1.35}
+    .row{display:flex;gap:10px;align-items:center;justify-content:space-between;padding:0 16px 16px}
+    .row .muted{color:#aab3c2;font-size:12px}
+    .danger{background:linear-gradient(180deg,#3b1c1c,#2a1414);border-color:#5a2a2a}
 
-    .footer{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-top:1px solid #1d2736}
+    .toast{position:fixed;right:16px;bottom:16px;background:#0f1722;border:1px solid #293346;padding:10px 12px;border-radius:10px;color:#cde2ff;display:none}
 
-    .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+    @media (max-width:900px){
+      .modal{grid-template-columns:1fr;grid-template-rows:auto 1fr}
+      .modal img{max-height:50vh}
+    }
   </style>
 </head>
 <body>
   <header>
-    <div class="wrap">
-      <div class="controls">
-        <div>
-          <h1>My Photo Wall</h1>
-          <div class="sub">100-frame gallery • Click any square to upload or edit • Auto-saves online</div>
-        </div>
-        <div class="row">
-          <span id="authState" class="pill">Connecting…</span>
-          <button id="signOutBtn" style="display:none">Sign out</button>
-        </div>
+    <div class="inner">
+      <div class="title">
+        <h1>Photo Grid — 100 Frames</h1>
+        <span class="badge" id="authState">Connecting…</span>
+      </div>
+      <div class="bar">
+        <button id="signOutBtn" style="display:none">Sign out</button>
+        <button id="exportJSON" title="Download all metadata as JSON">Export JSON</button>
+        <label class="btn" for="bulkUpload">Bulk upload (up to 100)</label>
+        <input id="bulkUpload" type="file" accept="image/*" multiple style="display:none" />
       </div>
     </div>
   </header>
 
-  <main>
-    <div class="grid" id="grid"></div>
-  </main>
+  <main class="grid" id="grid"></main>
 
-  <dialog id="editor">
-    <div class="modal-head">
-      <div class="row">
-        <strong id="modalTitle">Frame</strong>
-        <span class="pill" id="fileSize"></span>
-      </div>
-      <div class="row">
-        <button id="replaceBtn">Replace image</button>
-        <button id="deleteBtn" style="border-color:#3b1d1d;background:#1b0e0e">Delete</button>
-        <button id="closeBtn" aria-label="Close">Close ✕</button>
-      </div>
-    </div>
-    <div class="modal-body">
-      <div class="modal-img"><img id="modalImg" alt="Selected" /></div>
-      <div class="meta">
-        <h3>Details</h3>
-        <label for="desc">Description</label>
-        <textarea id="desc" placeholder="Write something about this photo…"></textarea>
-        <div class="row" style="margin-top:10px;justify-content:space-between">
-          <div class="save-state"><span class="save-dot" id="saveDot"></span><span id="saveText">Idle</span></div>
-          <div class="muted" id="updatedAt"></div>
+  <!-- Modal for viewing & editing description -->
+  <div class="modalBack" id="modalBack" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true">
+      <img id="modalImg" alt="Selected image" />
+      <div class="side">
+        <header>
+          <div class="meta">
+            <span class="dot"></span>
+            <div>
+              <h3 id="modalTitle">Frame</h3>
+              <div class="muted" id="modalSub">Updated —</div>
+            </div>
+          </div>
+        </header>
+        <textarea id="desc" placeholder="Write a description…"></textarea>
+        <div class="row">
+          <div class="muted">Autosaves online</div>
+          <div style="display:flex;gap:8px">
+            <button class="danger" id="deleteBtn" title="Remove image & description from this frame">Delete</button>
+            <button class="primary" id="closeBtn">Close</button>
+          </div>
         </div>
       </div>
     </div>
-    <div class="footer">
-      <div class="muted">Tip: your gallery is private to your account (anonymous sign-in). Deploy this file anywhere.</div>
-      <div class="row">
-        <button id="downloadBtn">Download image</button>
-      </div>
-    </div>
-  </dialog>
+  </div>
 
-  <input type="file" id="fileInput" accept="image/*" class="sr-only" />
+  <div class="toast" id="toast">Saved ✓</div>
 
-  <!-- Firebase v10 CDN (modular) -->
+  <!-- Firebase (Compat SDK for easiest no-build setup) -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-storage-compat.js"></script>
+
   <script type="module">
-    /******************
-     * 🔧 1) Firebase config — REPLACE with your own project's keys from console.firebase.google.com
-     ******************/
+    // 1) Paste your Firebase web config here (Project Settings → General → Your apps → SDK setup & config)
     const firebaseConfig = {
       apiKey: "YOUR_API_KEY",
-      authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-      projectId: "YOUR_PROJECT_ID",
-      storageBucket: "YOUR_PROJECT_ID.appspot.com",
-      appId: "YOUR_APP_ID",
+      authDomain: "YOUR_PROJECT.firebaseapp.com",
+      projectId: "YOUR_PROJECT",
+      storageBucket: "YOUR_PROJECT.appspot.com",
+      messagingSenderId: "YOUR_SENDER_ID",
+      appId: "YOUR_APP_ID"
     };
 
-    // --- SDK imports via CDN ---
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js";
-    import { getAuth, signInAnonymously, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js";
-    import { getFirestore, doc, setDoc, getDoc, onSnapshot, serverTimestamp, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js";
-    import { getStorage, ref, uploadBytesResumable, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-storage.js";
+    // 2) Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+    const storage = firebase.storage();
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
-    const storage = getStorage(app);
+    // Enable local cache (optional but nice)
+    db.enablePersistence().catch(()=>{});
 
-    // UI elements
-    const grid = document.getElementById('grid');
-    const fileInput = document.getElementById('fileInput');
+    // Anonymous auth so writes are tied to a user session (configure rules below)
     const authState = document.getElementById('authState');
     const signOutBtn = document.getElementById('signOutBtn');
+    auth.onAuthStateChanged(async (user)=>{
+      if(!user){
+        await auth.signInAnonymously();
+      } else {
+        authState.textContent = `Online · ${user.isAnonymous? 'Guest' : user.email||'User'}`;
+        signOutBtn.style.display = user.isAnonymous ? 'none' : 'inline-flex';
+      }
+    });
+    signOutBtn.onclick = ()=> auth.signOut();
 
-    const editor = document.getElementById('editor');
+    // DOM helpers
+    const grid = document.getElementById('grid');
+    const modalBack = document.getElementById('modalBack');
     const modalImg = document.getElementById('modalImg');
     const modalTitle = document.getElementById('modalTitle');
-    const fileSizeEl = document.getElementById('fileSize');
-    const desc = document.getElementById('desc');
-    const saveDot = document.getElementById('saveDot');
-    const saveText = document.getElementById('saveText');
-    const updatedAt = document.getElementById('updatedAt');
-    const closeBtn = document.getElementById('closeBtn');
-    const replaceBtn = document.getElementById('replaceBtn');
+    const modalSub = document.getElementById('modalSub');
+    const descTA = document.getElementById('desc');
     const deleteBtn = document.getElementById('deleteBtn');
-    const downloadBtn = document.getElementById('downloadBtn');
+    const closeBtn = document.getElementById('closeBtn');
+    const toast = document.getElementById('toast');
 
-    let current = { slot: null, data: null, uid: null };
+    // Build 100 cells upfront
+    const docRef = (i)=> db.collection('frames').doc(String(i));
 
-    // Helpers
-    const fmtBytes = (b)=>{
-      if(!b && b!==0) return '';
-      const u=['B','KB','MB','GB'];
-      let i=0; while(b>=1024 && i<u.length-1){b/=1024;i++}
-      return `${b.toFixed(1)} ${u[i]}`
-    }
-    const debounce = (fn,ms=600)=>{let t;return(...a)=>{clearTimeout(t);t=setTimeout(()=>fn(...a),ms)}}
+    for(let i=0;i<100;i++){
+      const cell = document.createElement('div');
+      cell.className = 'cell';
+      cell.dataset.index = i;
 
-    // Build 100 tiles
-    const tiles = [];
-    for (let i=0;i<100;i++){
-      const tile = document.createElement('div');
-      tile.className = 'tile';
-      tile.dataset.slot = i;
-      tile.innerHTML = `
-        <div class="empty">
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 16l5-5 4 4 5-6 4 4"/></svg>
-          <span>Click to upload</span>
-        </div>
-        <span class="badge">#${String(i+1).padStart(2,'0')}</span>
-      `;
-      tile.addEventListener('click', ()=> onTileClick(tile));
-      grid.appendChild(tile);
-      tiles.push(tile);
-    }
+      const img = document.createElement('img');
+      img.className = 'thumb';
+      img.loading = 'lazy';
+      img.style.display = 'none';
 
-    // Auth + init
-    onAuthStateChanged(auth, async (user)=>{
-      if (!user){
-        authState.textContent = 'Signing in…';
-        signInAnonymously(auth).catch(err=>{
-          authState.textContent = 'Auth error';
-          console.error(err);
-        });
-        return;
-      }
-      current.uid = user.uid;
-      authState.textContent = 'Signed in';
-      signOutBtn.style.display = '';
+      const ph = document.createElement('div');
+      ph.className = 'placeholder';
+      ph.innerHTML = `
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M4 5a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5Z" stroke="#6b7a90" stroke-width="1.4"/>
+          <path d="M7 16l3-3 3 3 4-4 2 2" stroke="#6b7a90" stroke-width="1.4"/>
+          <circle cx="9" cy="8" r="1.5" stroke="#6b7a90" stroke-width="1.4"/>
+        </svg>
+        <div>Click to upload</div>`;
 
-      // Attach listeners for each slot
-      tiles.forEach((tile)=> attachSlotListener(tile));
-    });
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = 'image/*';
 
-    signOutBtn.addEventListener('click', ()=> signOut(auth));
+      const overlay = document.createElement('div');
+      overlay.className = 'overlay';
+      const edit = document.createElement('button');
+      edit.className = 'edit';
+      edit.textContent = 'Open';
+      overlay.appendChild(edit);
 
-    function slotDocRef(slot){
-      return doc(db, 'users', current.uid, 'photos', String(slot));
-    }
+      cell.append(img, ph, input, overlay);
+      grid.appendChild(cell);
 
-    function attachSlotListener(tile){
-      const slot = tile.dataset.slot;
-      onSnapshot(slotDocRef(slot), (snap)=>{
-        const data = snap.data();
-        renderTile(tile, data);
-      });
-    }
-
-    function renderTile(tile, data){
-      tile.innerHTML = '';
-      tile.insertAdjacentHTML('beforeend', `<span class="badge">#${String(Number(tile.dataset.slot)+1).padStart(2,'0')}</span>`);
-      if (data && data.url){
-        const img = document.createElement('img');
-        img.src = data.url;
-        img.alt = data.description || 'Photo';
-        tile.appendChild(img);
-      } else {
-        const empty = document.createElement('div');
-        empty.className='empty';
-        empty.innerHTML = `
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 16l5-5 4 4 5-6 4 4"/></svg>
-          <span>Click to upload</span>`;
-        tile.appendChild(empty);
-      }
-    }
-
-    async function onTileClick(tile){
-      const slot = tile.dataset.slot;
-      const snap = await getDoc(slotDocRef(slot));
-      const data = snap.exists()? snap.data(): null;
-      if (!data || !data.url){
-        // no image yet — choose file
-        chooseAndUpload(slot);
-      } else {
-        openEditor(slot, data);
-      }
-    }
-
-    function chooseAndUpload(slot){
-      fileInput.value = '';
-      fileInput.onchange = async (e)=>{
-        const file = e.target.files?.[0];
-        if (!file) return;
-        await uploadToSlot(slot, file);
-      };
-      fileInput.click();
-    }
-
-    async function uploadToSlot(slot, file){
-      const path = `uploads/${current.uid}/${slot}`;
-      const sRef = ref(storage, path);
-      const task = uploadBytesResumable(sRef, file);
-
-      let tile = tiles[Number(slot)];
-      tile.style.outline = '2px solid var(--warn)';
-
-      await new Promise((resolve, reject)=>{
-        task.on('state_changed', ()=>{}, reject, resolve);
-      });
-      const url = await getDownloadURL(sRef);
-
-      const payload = {
-        url,
-        description: '',
-        bytes: file.size,
-        updatedAt: serverTimestamp(),
-      };
-      await setDoc(slotDocRef(slot), payload, { merge:true });
-      tile.style.outline = '';
-      openEditor(slot, payload);
-    }
-
-    function openEditor(slot, data){
-      current.slot = slot;
-      current.data = data;
-      modalTitle.textContent = `Frame #${String(Number(slot)+1).padStart(2,'0')}`;
-      modalImg.src = data.url;
-      desc.value = data.description || '';
-      fileSizeEl.textContent = data.bytes ? fmtBytes(data.bytes) : '';
-      updatedAt.textContent = data.updatedAt?.toDate ? new Date(data.updatedAt.toDate()).toLocaleString() : '';
-      setSaveState('idle');
-      editor.showModal();
-    }
-
-    closeBtn.addEventListener('click', ()=> editor.close());
-
-    replaceBtn.addEventListener('click', ()=>{
-      if (current.slot==null) return;
-      fileInput.value='';
-      fileInput.onchange = async (e)=>{
+      // Click-to-upload
+      input.addEventListener('change', async (e)=>{
         const file = e.target.files?.[0];
         if(!file) return;
-        await uploadToSlot(current.slot, file);
-      };
-      fileInput.click();
+        await uploadToFrame(i, file);
+      });
+
+      // Open modal
+      edit.addEventListener('click', ()=> openModal(i));
+      img.addEventListener('click', ()=> openModal(i));
+
+      // Live subscribe for this frame
+      docRef(i).onSnapshot(snap=>{
+        const data = snap.data();
+        if(data?.imageURL){
+          img.src = data.imageURL; img.style.display='block'; ph.style.display='none';
+        }else{ img.style.display='none'; ph.style.display='flex'; }
+      });
+
+      // Allow drag & drop directly on the tile
+      ;['dragenter','dragover'].forEach(ev=>cell.addEventListener(ev,(e)=>{e.preventDefault();cell.style.outline='2px dashed #3057a8'}));
+      ;['dragleave','drop'].forEach(ev=>cell.addEventListener(ev,(e)=>{e.preventDefault();cell.style.outline='none'}));
+      cell.addEventListener('drop', async (e)=>{
+        const file = e.dataTransfer.files?.[0];
+        if(file) await uploadToFrame(i,file);
+      });
+    }
+
+    async function uploadToFrame(index, file){
+      const id = `${index}-${Date.now()}`;
+      const ref = storage.ref().child(`frames/${id}`);
+      await ref.put(file);
+      const url = await ref.getDownloadURL();
+      await docRef(index).set({ imageURL: url, description: "", updatedAt: firebase.firestore.FieldValue.serverTimestamp() }, { merge:true });
+      showToast('Image uploaded');
+    }
+
+    // Modal logic
+    let currentIndex = null; let saveTimer = null;
+    async function openModal(index){
+      currentIndex = index;
+      const snap = await docRef(index).get();
+      const data = snap.data()||{};
+      modalTitle.textContent = `Frame #${index+1}`;
+      modalSub.textContent = data.updatedAt?.toDate ? `Updated ${data.updatedAt.toDate().toLocaleString()}` : 'Not saved yet';
+      modalImg.src = data.imageURL || '';
+      descTA.value = data.description || '';
+      document.body.style.overflow='hidden';
+      modalBack.style.display='flex';
+      modalBack.setAttribute('aria-hidden','false');
+    }
+
+    function closeModal(){
+      modalBack.style.display='none';
+      modalBack.setAttribute('aria-hidden','true');
+      document.body.style.overflow='auto';
+      currentIndex=null;
+    }
+
+    closeBtn.onclick = closeModal;
+    modalBack.addEventListener('click', (e)=>{ if(e.target===modalBack) closeModal(); });
+
+    // Autosave description (debounced)
+    descTA.addEventListener('input', ()=>{
+      if(currentIndex==null) return;
+      clearTimeout(saveTimer);
+      saveTimer = setTimeout(async ()=>{
+        await docRef(currentIndex).set({ description: descTA.value, updatedAt: firebase.firestore.FieldValue.serverTimestamp() }, { merge:true });
+        showToast('Saved');
+      }, 500);
     });
 
+    // Delete
     deleteBtn.addEventListener('click', async ()=>{
-      if (current.slot==null) return;
-      if (!confirm('Delete this image and description?')) return;
-      // delete storage object and firestore doc
-      try{
-        const path = `uploads/${current.uid}/${current.slot}`;
-        await deleteObject(ref(storage, path)).catch(()=>{});
-        await deleteDoc(slotDocRef(current.slot));
-        editor.close();
-      }catch(err){
-        console.error(err);
-        alert('Delete failed');
-      }
+      if(currentIndex==null) return;
+      const confirmDel = confirm('Remove image & description from this frame?');
+      if(!confirmDel) return;
+      await docRef(currentIndex).set({ imageURL: firebase.firestore.FieldValue.delete(), description: "", updatedAt: firebase.firestore.FieldValue.serverTimestamp() }, { merge:true });
+      modalImg.src=''; descTA.value='';
+      showToast('Cleared');
     });
 
-    downloadBtn.addEventListener('click', ()=>{
-      if (!current?.data?.url) return;
-      const a = document.createElement('a');
-      a.href = current.data.url;
-      a.download = `photo-${Number(current.slot)+1}.jpg`;
-      document.body.appendChild(a); a.click(); a.remove();
+    // Bulk upload helper
+    document.getElementById('bulkUpload').addEventListener('change', async (e)=>{
+      const files = Array.from(e.target.files||[]).slice(0,100);
+      if(files.length===0) return;
+      // Fill empty frames first
+      const snaps = await db.collection('frames').get();
+      const taken = new Set(snaps.docs.filter(d=>d.data().imageURL).map(d=>Number(d.id)));
+      let idx=0;
+      for(let i=0;i<100 && idx<files.length;i++){
+        if(!taken.has(i)){
+          await uploadToFrame(i, files[idx]);
+          idx++;
+        }
+      }
+      showToast(`Uploaded ${idx} image(s)`);
     });
 
-    const saveDesc = debounce(async ()=>{
-      if (current.slot==null) return;
-      setSaveState('saving');
-      try{
-        await setDoc(slotDocRef(current.slot), { description: desc.value, updatedAt: serverTimestamp() }, { merge: true });
-        setSaveState('saved');
-      }catch(err){
-        console.error(err);
-        setSaveState('error');
-      }
-    }, 600);
+    // Export metadata
+    document.getElementById('exportJSON').addEventListener('click', async ()=>{
+      const snaps = await db.collection('frames').orderBy(firebase.firestore.FieldPath.documentId()).get();
+      const data = snaps.docs.map((d,i)=>({ index:i, ...(d.data()||{}) }));
+      const blob = new Blob([JSON.stringify(data,null,2)], {type:'application/json'});
+      const a = Object.assign(document.createElement('a'), { href:URL.createObjectURL(blob), download:'frames.json' });
+      a.click();
+    });
 
-    desc.addEventListener('input', saveDesc);
-
-    function setSaveState(state){
-      saveDot.classList.remove('saving','saved','error');
-      if (state==='saving'){ saveDot.classList.add('saving'); saveText.textContent = 'Saving…'; }
-      else if (state==='saved'){ saveDot.classList.add('saved'); saveText.textContent = 'Saved'; setTimeout(()=>{saveText.textContent='Idle'; saveDot.classList.remove('saved')}, 1200); }
-      else if (state==='error'){ saveDot.classList.add('error'); saveText.textContent = 'Error'; }
-      else { saveText.textContent = 'Idle'; }
+    function showToast(msg){
+      toast.textContent = msg + ' ✓';
+      toast.style.display='block';
+      clearTimeout(showToast.t);
+      showToast.t = setTimeout(()=>toast.style.display='none', 1200);
     }
-
-    // Optional: Register a very simple service worker for offline viewing of cached assets
-    if ('serviceWorker' in navigator){
-      try{ navigator.serviceWorker.register(URL.createObjectURL(new Blob([`
-        self.addEventListener('install',e=>self.skipWaiting());
-        self.addEventListener('activate',e=>clients.claim());
-        self.addEventListener('fetch',()=>{});
-      `],{type:'text/javascript'}))); }catch(e){}
-    }
-
   </script>
 
   <!--
-  ==============================
-  🔒 Firebase Security Rules (basic)
-  ==============================
-  Firestore rules example (Firestore -> Rules):
+  ─────────────────────────────────────────────────────────────────────
+  FIREBASE SECURITY RULES (set these in Firebase Console → Firestore/Storage)
+  Firestore rules (simple: anyone can read; authenticated users—including anonymous—can write):
 
   rules_version = '2';
   service cloud.firestore {
     match /databases/{database}/documents {
-      match /users/{uid}/photos/{slot} {
-        allow read, write: if request.auth != null && request.auth.uid == uid;
+      match /frames/{docId} {
+        allow read: if true;
+        allow write: if request.auth != null; // anon ok
       }
     }
   }
 
-  Storage rules example (Storage -> Rules):
+  Storage rules (restrict to images, authenticated users only):
 
   rules_version = '2';
   service firebase.storage {
     match /b/{bucket}/o {
-      match /uploads/{uid}/{slot} {
-        allow read, write: if request.auth != null && request.auth.uid == uid;
+      match /frames/{allPaths=**} {
+        allow read: if true;
+        allow write: if request.auth != null &&
+                      request.resource.contentType.matches('image/.*') &&
+                      request.resource.size < 15 * 1024 * 1024; // 15MB
       }
     }
   }
 
-  ==============================
-  🚀 Deploying
-  ==============================
-  1) Create a Firebase project, enable Anonymous Authentication, Firestore, and Storage.
-  2) Replace the firebaseConfig above with your project keys.
-  3) Put this single index.html on Netlify, Vercel, GitHub Pages, or any static host.
-  4) Done — images & descriptions save online per user account.
+  Optional: enable Authentication → Sign-in method → Anonymous
+  ─────────────────────────────────────────────────────────────────────
   -->
 </body>
 </html>
+
